@@ -121,6 +121,36 @@ def populationSearch(cSock, args):
     cSock.send(bytes(text[(tableInsertIndex + 7):], encoding = 'utf-8'))
     cSock.close();
 
+def addLocation(cSock, args):
+    cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type: text/html\r\n\r\n",encoding="utf-8"))
+    page = open("locationCreate.html",'r')
+    text = page.read()
+    optionsIndex = text.find("$OPTIONS$")
+    
+    page.close()
+    cSock.send(bytes(text[:optionsIndex], encoding = 'utf-8'))
+    cur = dbConnection.cursor()
+    cur.execute("SELECT LocationID, Name FROM Locations")
+    row = cur.fetchone()
+    while row:
+        cSock.send(bytes("<option value='"+str(row[0])+"'>"+row[1]+"</option>", encoding = 'utf-8'))
+        row = cur.fetchone()
+    cur.close()
+    cSock.send(bytes(text[optionsIndex + 9:], encoding = 'utf-8'))
+    if len(args.keys()) == 3:
+        name = repr(args["name"])
+        blurb = repr(args["blurb"])
+        sublocation = int(args["sublocation"])
+        cur = dbConnection.cursor()
+        query = "INSERT INTO Locations SELECT MAX(LocationID) + 1, "+name+","+blurb+" FROM Locations"
+        cur.execute(query)
+        if (sublocation > 0):
+            cur.execute("INSERT INTO Sublocations SELECT "+ str(sublocation) +", MAX(LocationID) FROM Locations")
+        cur.close()
+        print(query)
+        #cur.execute()
+    cSock.close();
+
 
 
 def indexPage(cSock, args):
@@ -130,10 +160,6 @@ def indexPage(cSock, args):
     tableInsertIndex = text.find("$TABLE$")
     table = ""
     cSock.send(bytes(text[:tableInsertIndex], encoding = 'utf-8'))
-    if len(args.keys()) > 0:
-        cur = dbConnection.cursor()
-        cur.execute("SELECT * FROM Locations")
-        buildTable(cSock, cur)
     cSock.send(bytes(text[(tableInsertIndex + 7):], encoding = 'utf-8'))
     index.close()
 
@@ -142,7 +168,7 @@ def indexPage(cSock, args):
 
 # Server Handling Code
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(("localhost", 8061))
+server.bind(("localhost", 8007))
 server.listen(5)
 
 while True:
@@ -187,5 +213,7 @@ while True:
             sublocationSearch(cSock, args)
         elif(fileName == "/population"):
             populationSearch(cSock, args)
+        elif(fileName == "/addLocation"):
+            addLocation(cSock, args)
         else:
-            indexPage(cSock, args)
+            cSock.close()
