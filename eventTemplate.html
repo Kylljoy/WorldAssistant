@@ -6,7 +6,7 @@
     <title>$EVENT_NAME</title>
   </head>
   <body>
-    <header><div class="location-title"><a href='/locations/$LOCATION_ID'>$LOCATION_NAME</a> &rarr; <h1>$EVENT_NAME</h1></h1></div></header>
+    <header><div class="location-title"><a href='/locations/$LOCATION_ID'>$LOCATION_NAME</a> &rarr; <h1>$EVENT_NAME : ($DATE/$MONTH/$YEAR)</h1></div></header>
     <hr>
     <div class="info-body">
       <div class='info-box'><h2>ABOUT</h2> <br>
@@ -15,12 +15,12 @@
       $CHARACTER_LIST
       </div>
   </div>
-  <button class="modify-button" onclick="window.location.replace('/locations/$EVENT_ID/modify')">MODIFY</button>
+  <button class="modify-button" onclick="window.location.replace('/events/$EVENT_ID/modify')">MODIFY</button>
   <button class="delete-button" onclick="delete_confirmation()">DELETE</button>
   </body>
   <script>
     function delete_confirmation() {
-      if (confirm("Are you sure? This will delete all sublocations and resident NPCs!")) {
+      if (confirm("Are you sure? This cannot be undone!")) {
         window.location.replace("/events/$EVENT_ID/delete");
       }
     }

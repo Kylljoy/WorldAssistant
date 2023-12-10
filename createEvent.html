@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="utf-8">
+    <title>$EVENT_NAME</title>
+  </head>
+  <body>
+    <form>
+    <header><div class="location-title"><h1>$LOCATION_NAME</h1> &rarr; <input class="character-title-input" name="name" value="$EVENT_NAME"></input> (<input class="character-title-input-svelte" name="date" value="$DATE"></input>/<input class="character-title-input-svelte" name="month" value="$MONTH"></input>/<input class="character-title-input-svelte" name="year" value="$YEAR"></input>)</div></header>
+    <hr>
+    <div class="info-body">
+      <div class='info-box'><h2>ABOUT</h2> <br>
+    <textarea class="hidden-input" name="blurb">$EVENT_BLURB</textarea></div>
+    <div class='info-box'><h2>PARTIPANTS</h2> <br>
+        <input id="characterSearch" class='searchbar' oninput="updateSuggestions()"></input>
+        <table id="suggestions">
+
+        </table>
+        <hr>
+      <table id="currentParticipants">
+
+      </table>
+      </div>
+  </div>
+  <button type="submit">Done</button>
+    <a class="button-link" href="$BACK_URL">Back</a>
+  </form>
+  
+  </body>
+  <script>
+    function delete_confirmation() {
+      if (confirm("Are you sure? This cannot be undone!")) {
+        window.location.replace("/events/$EVENT_ID/delete");
+      }
+    }
+
+    let participantCount = 0;
+
+    let participants = [$PARTICIPANTS];
+    let suggestions = [];
+
+    rebuildParticipants();
+
+    function addParticipant(index) {
+        for (participant of participants) {
+            if (participant[1] == suggestions[index][1]) {
+                //Avoid double-inclusion
+                suggestions = [];
+                rebuildSuggestions();
+                return;
+            }
+        }
+        participants.push(suggestions[index]);
+        suggestions = [];
+        rebuildSuggestions();
+        participantCount++;
+        rebuildParticipants();
+    }
+
+    function rebuildParticipants() {
+        deposition = document.getElementById("currentParticipants");
+        deposition.innerHTML = "";
+        for(let i = 0; i < participants.length; i++) {
+            deposition.innerHTML += "<input type='hidden' name='p" + i 
+                + "' value=" + participants[i][1] + "><tr><td>" + participants[i][0] + "</td>" +
+                "<td><button type='button' onclick='removeParticipant(" + i + ")'>X</button></td></tr>";
+        }
+    }
+
+    function removeParticipant(index) {
+        participants.splice(index, 1);
+        participantCount--;
+        rebuildParticipants();
+    }
+
+
+    function rebuildSuggestions() {
+        deposition = document.getElementById("suggestions");
+        deposition.innerHTML = "";
+        for (let i = 0; i < suggestions.length; i++) {
+            deposition.innerHTML += "<tr><td>" + suggestions[i][0] + "</td>" +
+                "<td><button type='button' onclick = 'addParticipant(" + i + ")'>+</button></td></tr>";
+        }
+        
+    }
+
+    function updateSuggestions() {
+        suggestions = [];
+        if (!(document.getElementById("characterSearch").value === "")) {
+            fetch("/info/character?" + new URLSearchParams({"name":document.getElementById("characterSearch").value}))
+                .then((response) => response.json())
+                .then((json) => {
+                    if (json["status"] === "success") {
+                        for (let i = 0; i < json["rows"]; i++) {
+                        suggestions.push([json[i]["name"], json[i]["id"]])
+                        }
+                    } 
+                }).then((dump) => rebuildSuggestions());
+        } else {
+            rebuildSuggestions();
+        }
+    }
+  </script>
+
+</html>

@@ -3,7 +3,10 @@ import mysql.connector
 import socket
 import re
 
+import json
+
 from baseEssentials import *
+
 
 def serveCharacterData(cSock, dbConnection, args):
     #Match the partial

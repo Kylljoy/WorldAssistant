@@ -109,4 +109,39 @@ BEGIN
     //
 DELIMITER ;
 
+DELIMITER //
+CREATE PROCEDURE purgeEvent (IN evId INT UNSIGNED)
+BEGIN
+
+
+    DELETE FROM Participants
+    WHERE EventID = evId;
+
+    DELETE FROM Events
+    WHERE EventID = evId;
+    END
+    //
+DELIMITER ;
+
+
+DELIMITER //
+CREATE PROCEDURE generateTimeline
+BEGIN
+    DROP VIEW IF EXISTS timeline;
+    CREATE VIEW Timeline AS 
+    SELECT e.Name AS EventName, e.Blurb, l.Name AS LocationName, e.Date, e.Month, e.Year, e.EventID, e.LocationID FROM Events e
+    JOIN Locations l
+    ON l.LocationID = e.LocationID
+    ORDER BY e.Date, e.Month, e.Year;
+
+    DROP VIEW IF EXISTS HistoricalFigures;
+    CREATE VIEW HistoricalFigures AS
+    SELECT p.EventID, c.Name, c.CharacterID FROM Participants p
+    JOIN Characters c
+    ON c.CharacterID = p.CharacterID
+    ORDER BY p.EventID;
+    END
+    //
+DELIMITER ;
+
 

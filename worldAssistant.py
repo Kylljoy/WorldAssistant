@@ -130,6 +130,8 @@ while True:
                             serveModifyLocation(cSock, dbConnection,  args, int(path[1]))
                         elif (path[2] == "newcharacter"):
                             serveNewCharacter(cSock, dbConnection,  args, int(path[1]))
+                        elif (path[2] == "newevent"):
+                             serveNewEvent(cSock, dbConnection,  args, int(path[1]))
                         else:
                             send404(cSock)
                     
@@ -156,9 +158,17 @@ while True:
                     send404(cSock)
             elif (path[0] == "events" and len(path) <= 3):
                 if (len(path) == 1):
-                    send404(cSock)
+                    serveTimeline(cSock, dbConnection)
                 elif(path[1].isdigit()):
-                    serveEventPage(cSock, dbConnection, int(path[1]))
+                    if (len(path) == 2):
+                        serveEventPage(cSock, dbConnection, int(path[1]))
+                    if (len(path) == 3):
+                        if (path[2] == "modify"):
+                            serveModifyEvent(cSock, dbConnection, args, int(path[1]))
+                        elif (path[2] == "delete"):
+                            serveDeleteEvent(cSock, dbConnection, int(path[1]))
+                        else:
+                            send404(cSock)
                 else:
                     send404(cSock)
 
@@ -168,6 +178,10 @@ while True:
                 else:
                     if(path[1] == "location"):
                         serveLocationData(cSock, dbConnection, args)
+                    if(path[1] == "character"):
+                        serveCharacterData(cSock, dbConnection, args)
+                    else:
+                        send404(cSock)
                     
             elif (fileName == "/"):
                 cSock.close()
