@@ -181,9 +181,16 @@ tr.timeline-row {
     overflow-wrap:break-word;
     padding:5px;
     vertical-align:top;
+    border-radius:1em;
    width:33%;
     margin:1em;
     color:#000;
+}
+
+.timeline-event:hover {
+    background-color:#666;
+    cursor:pointer;
+    border:2px #000;
 }
 
 .timeline-event-name {

@@ -10,13 +10,13 @@ def serveTimeline(cSock, dbConnection):
     cur.execute("SELECT * FROM Timeline")
     row = cur.fetchone()
     rowCount = 0
-    timelineString = "<tr>"
+    timelineString = "<tr class='timeline-row'>"
     while (row):
         timelineString += "<td onclick='window.location.replace(\"/events/" + str(row[0]) + "\")' class='timeline-event'><div class='timeline-event-name'>" + row[3] + "</div><div class='timeline-event-date'>" + str(row[4]) + "/" + str(row[5]) + "/" + str(row[6]) + "</div>" + row[2] + "</td>"
         rowCount += 1
         if (rowCount >= 3):
             rowCount = 0
-            timelineString += "</tr><tr>"
+            timelineString += "</tr><tr class='timeline-row'>"
         row = cur.fetchone()
     cur.close()
     timelineString += "</tr>"
@@ -31,8 +31,6 @@ def serveTimeline(cSock, dbConnection):
     cSock.send(bytes("\r\n\r\n", encoding = "utf-8"))
     cSock.close()
     
-    
-
 def serveNewEvent(cSock, dbConnection, args, locationId):
     #Ensure the given location exists
     cur = dbConnection.cursor()
@@ -43,10 +41,12 @@ def serveNewEvent(cSock, dbConnection, args, locationId):
         send404(cSock)
         return
     
-    if ("name" in args.keys() and "blurb" in args.keys()):
+    if ("name" in args.keys() and "blurb" in args.keys() and "date" in args.keys() and "month" in args.keys() and "year" in args.keys()):
         #Create a New Event
+
         cur = dbConnection.cursor()
-        cur.execute("INSERT INTO Events (Name, Blurb, LocationID) VALUES ('" + args["name"] + "' , '" + args["blurb"] + "', " + str(locationId) + ')')
+        cur.execute("INSERT INTO Events (Name, Blurb, LocationID, Date, Month, Year) VALUES ('" + encodeString(args["name"]) + "' , '" + encodeString(args["blurb"]) + "', " + str(locationId) + ", " + str(args["date"]) + ", " + str(args["month"]) + 
+            ", " + str(args["year"]) + ' )')
         cur.execute("SELECT MAX(EventID) FROM Events")
         row = cur.fetchone()
         cur.close()
@@ -101,8 +101,8 @@ def serveModifyEvent(cSock, dbConnection, args, eventId):
     if ("name" in args.keys() and "blurb" in args.keys() and "date" in args.keys() and "month" in args.keys() and "year" in args.keys()):
         #Create a New Event
         cur = dbConnection.cursor()
-        cur.execute("UPDATE Events SET Name = '" + args["name"] + "' , Blurb = '" + 
-            args["blurb"] + "', Date = " + str(args["date"]) + ", Month = " + str(args["month"]) + 
+        cur.execute("UPDATE Events SET Name = '" + encodeString(args["name"])[:50] + "' , Blurb = '" + 
+            encodeString(args["blurb"])[:200] + "', Date = " + str(args["date"]) + ", Month = " + str(args["month"]) + 
             ", Year = " + str(args["year"]) + " WHERE EventID = " + str(eventId))
         cur.execute("DELETE FROM Participants WHERE EventID = " + str(eventId))
         currentIndex = 0
@@ -175,7 +175,7 @@ def serveDeleteEvent(cSock, dbConnection, eventId):
         redirectPage(cSock, "/locations/" + str(row[0]))
 
 def serveEventPage(cSock, dbConnection, eventId):
-      #Read The Template
+    #Read The Template
     page = open("eventTemplate.html")
     pageSource = page.read()
     page.close()

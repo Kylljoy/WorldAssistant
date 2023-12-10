@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="utf-8">
+    <title>$JOB_NAME</title>
+  </head>
+  <body>
+    <header><div class="character-title"><div class="title-box"><h1>$JOB_NAME // <a href="/characters/$CHARACTER_ID">$CHARACTER_NAME</a></h1></div></div></header>
+    <hr>
+    <div class="info-body">
+      <div class='info-box'><h2>DESCRIPTION</h2>$JOB_BLURB</div><div class='info-box'></h2><h2>REWARDS</h2>$JOB_REWARDS</div>
+    
+  </div>
+  <button class="modify-button" onclick="window.location.replace('/jobs/$JOB_ID/modify')">MODIFY</button>
+  <button class="delete-button" onclick="delete_confirmation()">DELETE</button>
+
+    </div>
+  </body>
+  <script>
+    function delete_confirmation() {
+      if (confirm("Are you sure? This cannot be undone!")) {
+        window.location.replace("/jobs/$JOB_ID/delete");
+      }
+    }
+  </script>
+
+</html>

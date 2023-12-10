@@ -7,7 +7,6 @@ import json
 
 from baseEssentials import *
 
-
 def serveCharacterData(cSock, dbConnection, args):
     #Match the partial
     json_out = {"status":"failure"}
@@ -53,6 +52,13 @@ def serveCharacterPage(cSock, dbConnection, characterId):
         eventTable = buildEventTable(cur)
         pageSource = pageSource.replace("$EVENT_LIST", eventTable)
         cur.close()
+
+        #Build Job List
+        cur = dbConnection.cursor()
+        cur.execute("SELECT j.JobID, j.Name, j.Blurb FROM Jobs j WHERE j.CharacterID = " + str(characterId))
+        jobTable = buildJobTable(cur)
+        pageSource = pageSource.replace("$JOB_LIST", jobTable)
+        cur.close()
     else:
         send404(cSock)
         return
@@ -85,8 +91,8 @@ def serveModifyCharacter(cSock, dbConnection, args, characterId):
         page = open("createCharacter.html")
         pageSource = page.read()
         page.close()
-        pageSource = pageSource.replace("$CHARACTER_NAME", row[0])
-        pageSource = pageSource.replace("$CHARACTER_BIO", row[1])
+        pageSource = pageSource.replace("$CHARACTER_NAME", encodeString(row[0]))
+        pageSource = pageSource.replace("$CHARACTER_BIO", encodeString(row[1]))
         pageSource = pageSource.replace("$CHARACTER_SPECIES", row[2])
         pageSource = pageSource.replace("$CHARACTER_STATS", row[3])
         pageSource = pageSource.replace("$LOCATION_ID", str(row[5]))
@@ -99,6 +105,14 @@ def serveModifyCharacter(cSock, dbConnection, args, characterId):
         eventTable = buildEventTable(cur)
         pageSource = pageSource.replace("$EVENT_LIST", eventTable)
         cur.close()
+
+        #Build Job List
+        cur = dbConnection.cursor()
+        cur.execute("SELECT j.JobID, j.Name, j.Blurb FROM Jobs j WHERE j.CharacterID = " + str(characterId))
+        jobTable = buildJobTable(cur)
+        pageSource = pageSource.replace("$JOB_LIST", jobTable)
+        cur.close()
+
         
 
         #Send the Page Over
@@ -163,6 +177,7 @@ def serveNewCharacter(cSock, dbConnection, args, locationId):
             pageSource = pageSource.replace("$CHARACTER_BIO", "Insert New Bio")
             pageSource = pageSource.replace("$CHARACTER_STATS", "Insert New Stats")
             pageSource = pageSource.replace("$EVENTS_LIST", "<i>None</i>")
+            pageSource = pageSource.replace("$JOB_LIST", "<i>None</i>")
         else:
             send404(cSock)
             return

@@ -12,9 +12,15 @@ def send404(cSock):
                             "THE DARK RAPTURE HAS BEGUN!",
                             "THE SKY CRIES BLOOD!",
                             "THE GODS HAVE LEFT US!",
+                            "MONSTERS ROAM THE EARTH!",
+                            "CTHULU RISES!",
+                            "THE OLD GODS DENY IT!",
+                            "YOU KNOW NOT WHAT YOU SEEK!",
+                            "YOU SEEK FORBIDDEN KNOWLEDGE!",
                             "THE TWELFTH HOUR DRAWS NEAR",
                             "THE REAPER LURKS NEARBY!",
                             "THE EYE OF SAURON HAS TAKEN NOTICE!",
+                            "CRITICAL FAIL!",
                             "CYBERPSYCHOSIS!",
                             "SAVING THROW FAILED!"])
     text = text.replace("$TITLE", message)
@@ -25,12 +31,15 @@ def send404(cSock):
 
 def encodeString(s):
     out = s.replace("\\","\\\\")
-    out = out.replace("\"", "\\\"")
-    out = out.replace("\'", "\\\'")
+    out = out.replace("\"", "&quot;")
+    out = out.replace("\'", "&apos;")
     return out
 
 def decodeString(s):
     out = s.replace("\n", "<br>")
+    out = out.replace("\\\\", "\\")
+    out = out.replace("&quot;", "\"")
+    out = out.replace("&apos;", "\'")
     return out
     
 
@@ -46,7 +55,8 @@ def buildEventTable(cur):
     if (row):
         locationTable = "<table class='nameList'>"
         while row:
-            blurb = row[2][:30] + ("..." if len(row[2]) > 30 else "")
+            row = (row[0], decodeString(row[1]), decodeString(row[2]))
+            blurb = encodeString(row[2][:30]) + ("..." if len(row[2]) > 30 else "")
             locationTable += "<tr><td><a href='/events/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
             row = cur.fetchone()
         locationTable += "</table>"
@@ -58,7 +68,8 @@ def buildLocationTable(cur):
     if (row):
         locationTable = "<table class='nameList'>"
         while row:
-            blurb = row[2][:locationBlurbWidth] + ("..." if len(row[2]) > locationBlurbWidth else "")
+            row = (row[0], decodeString(row[1]), decodeString(row[2]))
+            blurb = encodeString(row[2][:locationBlurbWidth]) + ("..." if len(row[2]) > locationBlurbWidth else "")
             locationTable += "<tr><td><a href='/locations/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
             row = cur.fetchone()
         locationTable += "</table>"
@@ -70,8 +81,22 @@ def buildCharacterTable(cur):
     if (row):
         locationTable = "<table class='nameList'>"
         while row:
-            blurb = row[2][:30] + ("..." if len(row[2]) > 30 else "")
+            row = (row[0], decodeString(row[1]), decodeString(row[2]))
+            blurb = encodeString(row[2][:30]) + ("..." if len(row[2]) > 30 else "")
             locationTable += "<tr><td><a href='/characters/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
+            row = cur.fetchone()
+        locationTable += "</table>"
+        return locationTable
+    return ""
+
+def buildJobTable(cur):
+    row = cur.fetchone()
+    if (row):
+        locationTable = "<table class='nameList'>"
+        while row:
+            row = (row[0], decodeString(row[1]), decodeString(row[2]))
+            blurb = encodeString(row[2][:30]) + ("..." if len(row[2]) > 30 else "")
+            locationTable += "<tr><td><a href='/jobs/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
             row = cur.fetchone()
         locationTable += "</table>"
         return locationTable

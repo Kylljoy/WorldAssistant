@@ -10,6 +10,7 @@ from baseEssentials import *
 from locationHandlers import *
 from characterHandlers import *
 from eventHandlers import *
+from jobHandlers import *
 
 dbConnection = mysql.connector.connect( host="localhost",
                                         user="app",
@@ -18,10 +19,19 @@ dbConnection = mysql.connector.connect( host="localhost",
 
 fileMap = {"html" : "text/html", "js" : "a", "css":"text/css", "jpeg":"image/jpeg", "gif" : "image/gif", "png": "image/png", "txt":"text/plain", "ico":"image/vnd.microsoft.icon "}
 port = 8080
-#Builds an HTML Table Object From Cursor Result C
 
-def redirectTo(cSock, url):
-    cSock.send(bytes("<script>window.location.replace(\"" + url + "\");</script>", encoding = 'utf-8'))
+def serveIndex(cSock):
+    #Read The Template
+    page = open("index.html")
+    pageSource = page.read()
+    page.close()
+
+    #Send the Page Over
+    cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type: text/html\r\n\r\n",encoding="utf-8"))
+    cSock.send(bytes(pageSource, encoding = "utf-8"))
+    cSock.send(bytes("\r\n\r\n", encoding = "utf-8"))
+    cSock.close()
+
 
 def stripFormatting(s):
     i = 0
@@ -150,6 +160,8 @@ while True:
                             serveModifyCharacter(cSock, dbConnection, args, int(path[1]))
                         elif (path[2] == "delete"):
                             serveDeleteCharacter(cSock, dbConnection, int(path[1]))
+                        elif (path[2] == "newjob"):
+                            serveNewJob(cSock, dbConnection, args, int(path[1]))
                         else:
                             send404(cSock)
                     else:
@@ -182,9 +194,22 @@ while True:
                         serveCharacterData(cSock, dbConnection, args)
                     else:
                         send404(cSock)
-                    
+            elif (path[0] == "jobs"):
+                if (len(path) == 1):
+                    send404(cSock)
+                elif (len(path) <= 3 and path[1].isdigit()):
+                    if (len(path) == 2):
+                        serveJobPage(cSock, dbConnection, int(path[1]))
+                    elif (path[2] == "modify"):
+                        serveModifyJob(cSock, dbConnection, args, int(path[1]))
+                    elif (path[2] == "delete"):
+                        serveDeleteJob(cSock, dbConnection, int(path[1]))
+                    else:
+                        send404(cSock)
+                else:
+                    send404(cSock)
             elif (fileName == "/"):
-                cSock.close()
+                serveIndex(cSock)
             elif (".." not in fileName and suffix != "py" and suffix != "db"):
                 try:
                     newFile = open(fileName[1:], "rb")

@@ -13,13 +13,13 @@
     $LOCATION_BLURB</div>
     <div class='info-box'><h2>CHARACTERS</h2> <br>
       $CHARACTER_LIST
-      <a class="button-link" href="$LOCATION_ID/newcharacter">New Character</a></div>
+      <a class="button-link" href="/locations/$LOCATION_ID/newcharacter">New Character</a></div>
       <div class='info-box'><h2>EVENTS</h2> <br>
         $EVENT_LIST
-        <a class="button-link" href="$LOCATION_ID/newevent">New Event</a></div>
+        <a class="button-link" href="/locations/$LOCATION_ID/newevent">New Event</a></div>
     <div class='info-box'><h2>SUBLOCATIONS</h2> <br>
       $SUBLOCATION_LIST 
-      <a class="button-link" href="$LOCATION_ID/new">New Sublocation</a></div>
+      <a class="button-link" href="/locations/$LOCATION_ID/new">New Sublocation</a></div>
   </div>
   <button class="modify-button" onclick="window.location.replace('/locations/$LOCATION_ID/modify')">MODIFY</button>
   <button class="delete-button" onclick="delete_confirmation()">DELETE</button>
