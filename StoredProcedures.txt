@@ -1,0 +1,98 @@
+findLocalPopulation(IN locationId UNSIGNED INT)
+BEGIN
+
+        DROP TABLE IF EXISTS localPopulation;
+        CALL findAllSublocations(locationId);
+
+        CREATE TABLE localPopulation AS SELECT l.Name AS LocationName, c.* FROM Locations l JOIN Population p ON l.LocationID = p.LocationID JOIN Characters c ON c.CharacterID = p.CharacterID WHERE l.LocationID IN(SELECT a.ChildID FROM allSublocations a);
+
+        INSERT INTO localPopulation SELECT l.Name, c.* FROM Locations l JOIN Population p ON l.LocationID = p.LocationID JOIN Characters c ON c.CharacterID = p.CharacterID WHERE l.LocationID = locationId;
+    END
+
+DELIMITER //
+CREATE PROCEDURE findAllSublocations(IN locationId UNSIGNED INT)
+BEGIN
+    DROP TABLE IF EXISTS allSublocations;
+        CREATE TABLE allSublocations AS SELECT * FROM Sublocations WHERE ParentID = locationId;
+
+        WHILE (SELECT ROW_COUNT()) > 0 DO
+                INSERT INTO allSublocations SELECT f.ParentID, s.ChildID FROM allSublocations f JOIN Sublocations s ON f.ChildID = s.ParentID WHERE (f.ParentID, s.ChildID) NOT IN(SELECT * FROM allSublocations);
+            END WHILE;
+    END
+    //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE findAllMasterLocations()
+BEGIN
+    DROP TABLE IF EXISTS allMasterLocations;
+        CREATE TABLE allMasterLocations AS SELECT * FROM Locations
+        WHERE LocationID NOT IN (SELECT DISTINCT ChildID FROM Sublocations);
+    END
+    //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE findLocationPath (IN locationId INT UNSIGNED)
+BEGIN
+    DROP TABLE IF EXISTS locationPath;
+    CREATE TABLE locationPath AS SELECT l.LocationID,
+        l.Name FROM Locations l
+        WHERE l.LocationID = locationId;
+    INSERT INTO locationPath
+        SELECT l.LocationID, l.Name
+        FROM Locations l
+        WHERE l.LocationID =
+            (SELECT s.ParentID
+            FROM Sublocations s
+            WHERE s.ChildID =
+                (SELECT MIN(p.LocationID)
+                FROM locationPath p))
+        AND (l.LocationID, l.Name) NOT IN (SELECT * FROM locationPath);
+    WHILE (SELECT ROW_COUNT()) > 0 DO
+            INSERT INTO locationPath
+                SELECT l.LocationID, l.Name
+                FROM Locations l
+                WHERE l.LocationID =
+                    (SELECT s.ParentID
+                    FROM Sublocations s
+                    WHERE s.ChildID =
+                        (SELECT MIN(p.LocationID)
+                        FROM locationPath p))
+                AND (l.LocationID, l.Name) NOT IN (SELECT * FROM locationPath);
+    END WHILE;
+
+
+
+    END
+    //
+DELIMITER ;
+
+
+DELIMITER //
+CREATE PROCEDURE purgeLocation (IN locId INT UNSIGNED)
+BEGIN
+    CALL findlocalPopulation(locId);
+
+    DELETE FROM Characters
+    WHERE CharacterID IN (SELECT l.CharacterID FROM localPopulation l);
+
+    DELETE FROM Locations
+    WHERE LocationID IN (SELECT s.ChildID FROM allSublocations s);
+
+    DELETE FROM Population
+    WHERE LocationID = locId;
+
+    DELETE FROM Sublocations
+    WHERE ChildID = locId;
+
+    DELETE FROM Sublocations
+    WHERE ParentID = locId;
+
+    DELETE FROM Locations
+    WHERE LocationID = locId;
+    END
+    //
+DELIMITER ;
+
+

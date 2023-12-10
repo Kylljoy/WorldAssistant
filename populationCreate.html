@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<style>
+table {
+  border: 1px solid;
+  border-collapse: collapse;
+
+  width:100%;
+}
+
+th, td {
+  padding:10px;
+  border-bottom: 1px solid;
+  border-left: 1px solid;
+}
+
+tr:nth-child(even){
+  background-color: #000000;
+  color:#ffffff;
+}
+
+
+</style>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <title>WorldAssistant</title>
+  </head>
+  <body>
+    <form>
+    Character Name: <input type="search" name="name"></input><br>
+    Character Species:  <input type="search" name="species"></input><br>
+    Character States: <input type="search" name="stats"></input><br>
+    Character Bio: <input type="search" name="bio"></input><br>
+    At Location:<select name="location"><option value="0">None</option>$OPTIONS$</select><br>
+    <button type="submit">Add</button>
+
+    </form>
+  </body>
+</html>

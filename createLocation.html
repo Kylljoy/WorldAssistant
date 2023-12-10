@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="utf-8">
+    <title>$PAGE_TITLE</title>
+  </head>
+  <body>
+    <form>
+    <header><div class="location-title"><input class="location-title-input" name="name" value="$LOCATION_NAME"></input></div></header>
+    <hr>
+    
+    <div class="info-body">
+      <div class='info-box'><h2>ABOUT</h2> <br> <textarea name="blurb" class="hidden-input">$LOCATION_BLURB</textarea></div>
+    <div class='info-box'><h2>CHARACTERS</h2> <br>
+      $CHARACTER_LIST</div>
+      <div class='info-box'><h2>EVENTS</h2> <br>
+        $EVENT_LIST</div>
+    <div class='info-box'><h2>SUBLOCATIONS</h2> <br>
+      $SUBLOCATION_LIST</div>
+  </div>
+
+    </div>
+    <button type="submit">Done</button>
+    <a class="button-link" href="$BACK_URL">Back</a>
+</form>
+  </body>
+
+</html>

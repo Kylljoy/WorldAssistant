@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="utf-8">
+    <title>$LOCATION_NAME</title>
+  </head>
+  <body>
+    <header><div class="location-title"><h1>$LOCATION_PATH</h1></div></header>
+    <hr>
+    <div class="info-body">
+      <div class='info-box'><h2>ABOUT</h2> <br>
+    $LOCATION_BLURB</div>
+    <div class='info-box'><h2>CHARACTERS</h2> <br>
+      $CHARACTER_LIST
+      <a class="button-link" href="$LOCATION_ID/newcharacter">New Character</a></div>
+      <div class='info-box'><h2>EVENTS</h2> <br>
+        $EVENT_LIST</div>
+    <div class='info-box'><h2>SUBLOCATIONS</h2> <br>
+      $SUBLOCATION_LIST 
+      <a class="button-link" href="$LOCATION_ID/new">New Sublocation</a></div>
+  </div>
+  <button class="modify-button" onclick="window.location.replace('/locations/$LOCATION_ID/modify')">MODIFY</button>
+  <button class="delete-button" onclick="delete_confirmation()">DELETE</button>
+
+    </div>
+  </body>
+  <script>
+    function delete_confirmation() {
+      if (confirm("Are you sure? This will delete all sublocations and resident NPCs!")) {
+        window.location.replace("/locations/$LOCATION_ID/delete");
+      }
+    }
+  </script>
+
+</html>
