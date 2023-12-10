@@ -13,7 +13,10 @@ def send404(cSock):
                             "THE SKY CRIES BLOOD!",
                             "THE GODS HAVE LEFT US!",
                             "THE TWELFTH HOUR DRAWS NEAR",
-                            "THE REAPER LURKS NEARBY"])
+                            "THE REAPER LURKS NEARBY!",
+                            "THE EYE OF SAURON HAS TAKEN NOTICE!",
+                            "CYBERPSYCHOSIS!",
+                            "SAVING THROW FAILED!"])
     text = text.replace("$TITLE", message)
     cSock.send(bytes(text, encoding="utf-8"))
     cSock.send(bytes("\r\n\r\n", encoding="utf-8"))
@@ -27,9 +30,7 @@ def encodeString(s):
     return out
 
 def decodeString(s):
-    out = s.replace("\\\"", "\"")
-    out = out.replace("\\\'", "\'")
-    out = out.replace("\\\\","\\")
+    out = s.replace("\n", "<br>")
     return out
     
 

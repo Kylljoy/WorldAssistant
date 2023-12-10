@@ -6,17 +6,26 @@
     <title>$CHARACTER_NAME</title>
   </head>
   <body>
-    <header><div class="character-title"><div class="title-box"><h1>$CHARACTER_NAME</h1></div></div></header>
+    <header><div class="character-title"><div class="title-box"><h1>$CHARACTER_NAME // $CHARACTER_SPECIES // <a href="/locations/$LOCATION_ID">$LOCATION_NAME</a></h1></div></div></header>
     <hr>
     <div class="info-body">
-      <div class='info-box'><h2>ABOUT</h2> <br>
-    $CHARACTER_BIO</div>
+      <div class='info-box'><h2>STATISTICS</h2>$CHARACTER_STATS</div><div class='info-box'></h2><h2>ABOUT</h2>$CHARACTER_BIO
+    </div>
       <div class='info-box'><h2>EVENTS</h2> <br>
         $EVENT_LIST</div>
     
   </div>
+  <button class="modify-button" onclick="window.location.replace('/characters/$CHARACTER_ID/modify')">MODIFY</button>
+  <button class="delete-button" onclick="delete_confirmation()">DELETE</button>
 
     </div>
   </body>
+  <script>
+    function delete_confirmation() {
+      if (confirm("Are you sure? This cannot be undone!")) {
+        window.location.replace("/characters/$CHARACTER_ID/delete");
+      }
+    }
+  </script>
 
 </html>

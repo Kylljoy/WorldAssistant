@@ -95,4 +95,18 @@ BEGIN
     //
 DELIMITER ;
 
+DELIMITER //
+CREATE PROCEDURE purgeCharacter (IN chaId INT UNSIGNED)
+BEGIN
+
+
+    DELETE FROM Population
+    WHERE CharacterID = chaId;
+
+    DELETE FROM Characters
+    WHERE CharacterID = chaId;
+    END
+    //
+DELIMITER ;
+
 

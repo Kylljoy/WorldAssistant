@@ -50,7 +50,7 @@ def buildLocationPath(dbConnection, locationId):
     cur.close()
     return locationPath
 
-def serveLocationDeletion(cSock, dbConnection, locationId):
+def serveDeleteLocation(cSock, dbConnection, locationId):
     #Ensure the given location exists
     cur = dbConnection.cursor()
     cur.execute("SELECT * FROM Locations WHERE LocationID = " + str(locationId))
@@ -100,7 +100,7 @@ def serveModifyLocation(cSock, dbConnection, args, locationId):
 
         #Update The Info
         pageSource = pageSource.replace("$LOCATION_NAME", row[1])
-        pageSource = pageSource.replace("$LOCATION_BLURB", decodeString(row[2]))
+        pageSource = pageSource.replace("$LOCATION_BLURB", row[2])
         pageSource = pageSource.replace("$BACK_URL", "/locations/" + str(locationId))
 
         #Build Sublocation List
@@ -235,7 +235,7 @@ def serveLocationPage(cSock, dbConnection, locationId):
     cur.close()
     if (row):
         pageSource = pageSource.replace("$LOCATION_NAME", (row[0]))
-        pageSource = pageSource.replace("$LOCATION_BLURB", (row[1]))
+        pageSource = pageSource.replace("$LOCATION_BLURB", decodeString(row[1]))
         pageSource = pageSource.replace("$LOCATION_ID", str(locationId))
     else:
         send404(cSock)

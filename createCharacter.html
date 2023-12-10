@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="utf-8">
+    <title>$CHARACTER_NAME</title>
+  </head>
+  <body>
+    <form>
+    <header><div class="character-title"><div class="title-box"><input class="character-title-input" name="name" value="$CHARACTER_NAME"></input><h1> // </h1><input class="character-title-input" name="species" value="$CHARACTER_SPECIES"></input><h1> // </h1><a href="/locations/$LOCATION_ID">$LOCATION_NAME</a></h1></div></div></header>
+    <hr>
+    <div class="info-body">
+      <div class='info-box'><h2>STATISTICS</h2><textarea class="hidden-input" name="stats">$CHARACTER_STATS</textarea></div>
+      <div class='info-box'></h2><h2>ABOUT</h2><textarea class="hidden-input" name="bio">$CHARACTER_BIO</textarea>
+    </div>
+      <div class='info-box'><h2>EVENTS</h2> <br>
+        $EVENT_LIST</div>
+    
+      </div>
+      <button type="submit">Done</button>
+    <a class="button-link" href="$BACK_URL">Back</a>
+    </div>
+</form>
+  </body>
+
+</html>
