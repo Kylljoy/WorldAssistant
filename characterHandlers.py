@@ -5,6 +5,25 @@ import re
 
 from baseEssentials import *
 
+def serveCharacterData(cSock, dbConnection, args):
+    #Match the partial
+    json_out = {"status":"failure"}
+    if ("name" in args.keys()):
+        json_out["status"] = "success";
+        cur = dbConnection.cursor()
+        cur.execute("SELECT CharacterID, Name FROM Characters WHERE Name LIKE '" + str(encodeString(args["name"])) + "%'")
+        rows = cur.fetchmany(30)
+        cur.close()
+        if rows is not None:
+            json_out["rows"] = len(rows)
+            for i in range(0, len(rows)):
+                json_out[i] = {"id":rows[i][0], "name":rows[i][1]}
+
+    cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type:application/json\r\n\r\n",encoding="utf-8"))
+    cSock.send(bytes(json.dumps(json_out), encoding = "utf-8"))
+    cSock.send(bytes("\r\n\r\n", encoding = "utf-8"))
+    cSock.close()
+
 def serveCharacterPage(cSock, dbConnection, characterId):
     #Read The Template
     page = open("characterTemplate.html")
@@ -24,6 +43,13 @@ def serveCharacterPage(cSock, dbConnection, characterId):
         pageSource = pageSource.replace("$CHARACTER_STATS", row[3])
         pageSource = pageSource.replace("$LOCATION_ID", str(row[5]))
         pageSource = pageSource.replace("$LOCATION_NAME", row[4])
+
+        #Build Event List
+        cur = dbConnection.cursor()
+        cur.execute("SELECT e.EventID, e.Name, e.Blurb FROM Events e JOIN Participants p ON p.EventID = e.EventID JOIN Characters c ON c.CharacterID = p.CharacterID WHERE c.CharacterID = " + str(characterId))
+        eventTable = buildEventTable(cur)
+        pageSource = pageSource.replace("$EVENT_LIST", eventTable)
+        cur.close()
     else:
         send404(cSock)
         return
@@ -63,6 +89,14 @@ def serveModifyCharacter(cSock, dbConnection, args, characterId):
         pageSource = pageSource.replace("$LOCATION_ID", str(row[5]))
         pageSource = pageSource.replace("$LOCATION_NAME", row[4])
         pageSource = pageSource.replace("$BACK_URL", "/characters/" + str(characterId))
+
+        #Build Event List
+        cur = dbConnection.cursor()
+        cur.execute("SELECT e.EventID, e.Name, e.Blurb FROM Events e JOIN Participants p ON p.EventID = e.EventID JOIN Characters c ON c.CharacterID = p.CharacterID WHERE c.CharacterID = " + str(characterId))
+        eventTable = buildEventTable(cur)
+        pageSource = pageSource.replace("$EVENT_LIST", eventTable)
+        cur.close()
+        
 
         #Send the Page Over
         cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type: text/html\r\n\r\n",encoding="utf-8"))

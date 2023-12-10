@@ -8,31 +8,6 @@ import json
 from baseEssentials import *
 
 
-locationBlurbWidth = 50
-def buildLocationTable(cur):
-    row = cur.fetchone()
-    if (row):
-        locationTable = "<table class='nameList'>"
-        while row:
-            blurb = row[2][:locationBlurbWidth] + ("..." if len(row[2]) > locationBlurbWidth else "")
-            locationTable += "<tr><td><a href='/locations/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
-            row = cur.fetchone()
-        locationTable += "</table>"
-        return locationTable
-    return ""
-
-
-def buildCharacterTable(cur):
-    row = cur.fetchone()
-    if (row):
-        locationTable = "<table class='nameList'>"
-        while row:
-            blurb = row[2][:30] + ("..." if len(row[2]) > 30 else "")
-            locationTable += "<tr><td><a href='/characters/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
-            row = cur.fetchone()
-        locationTable += "</table>"
-        return locationTable
-    return ""
 
 locationPathWidth = 60
 def buildLocationPath(dbConnection, locationId):
@@ -64,7 +39,7 @@ def serveLocationData(cSock, dbConnection, args):
         if rows is not None:
             json_out["rows"] = len(rows)
             for i in range(0, len(rows)):
-                json_out[str(i)] = {"id":rows[i][0], "name":rows[i][1]}
+                json_out[i] = {"id":rows[i][0], "name":rows[i][1]}
 
     cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type:application/json\r\n\r\n",encoding="utf-8"))
     cSock.send(bytes(json.dumps(json_out), encoding = "utf-8"))
@@ -137,6 +112,13 @@ def serveModifyLocation(cSock, dbConnection, args, locationId):
         cur.execute("SELECT c.CharacterID, c.Name, c.Bio FROM Characters c JOIN Population p ON p.CharacterID = c.CharacterID WHERE p.LocationID = " + str(locationId))
         sublocationTable = buildCharacterTable(cur)
         pageSource = pageSource.replace("$CHARACTER_LIST", sublocationTable)
+        cur.close()
+
+        #Build Event List
+        cur = dbConnection.cursor()
+        cur.execute("SELECT e.EventID, e.Name, e.Blurb FROM Events e JOIN Locations l ON l.LocationID = e.LocationID WHERE l.LocationID = " + str(locationId))
+        eventTable = buildEventTable(cur)
+        pageSource = pageSource.replace("$EVENT_LIST", eventTable)
         cur.close()
 
 
@@ -277,8 +259,15 @@ def serveLocationPage(cSock, dbConnection, locationId):
     #Build Character List
     cur = dbConnection.cursor()
     cur.execute("SELECT c.CharacterID, c.Name, c.Bio FROM Characters c JOIN Population p ON p.CharacterID = c.CharacterID WHERE p.LocationID = " + str(locationId))
-    sublocationTable = buildCharacterTable(cur)
-    pageSource = pageSource.replace("$CHARACTER_LIST", sublocationTable)
+    characterTable = buildCharacterTable(cur)
+    pageSource = pageSource.replace("$CHARACTER_LIST", characterTable)
+    cur.close()
+
+    #Build Event List
+    cur = dbConnection.cursor()
+    cur.execute("SELECT e.EventID, e.Name, e.Blurb FROM Events e JOIN Locations l ON l.LocationID = e.LocationID WHERE l.LocationID = " + str(locationId))
+    eventTable = buildEventTable(cur)
+    pageSource = pageSource.replace("$EVENT_LIST", eventTable)
     cur.close()
 
 

@@ -39,3 +39,40 @@ def redirectPage(cSock, url):
     cSock.send(bytes("<!DOCTYPE html><body></body><script>window.location.replace(\"" + url + "\");</script></html>", encoding="utf-8"))
     cSock.send(bytes("\r\n\r\n", encoding="utf-8"))
     cSock.close()
+
+locationBlurbWidth = 50
+def buildEventTable(cur):
+    row = cur.fetchone()
+    if (row):
+        locationTable = "<table class='nameList'>"
+        while row:
+            blurb = row[2][:30] + ("..." if len(row[2]) > 30 else "")
+            locationTable += "<tr><td><a href='/events/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
+            row = cur.fetchone()
+        locationTable += "</table>"
+        return locationTable
+    return ""
+
+def buildLocationTable(cur):
+    row = cur.fetchone()
+    if (row):
+        locationTable = "<table class='nameList'>"
+        while row:
+            blurb = row[2][:locationBlurbWidth] + ("..." if len(row[2]) > locationBlurbWidth else "")
+            locationTable += "<tr><td><a href='/locations/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
+            row = cur.fetchone()
+        locationTable += "</table>"
+        return locationTable
+    return ""
+
+def buildCharacterTable(cur):
+    row = cur.fetchone()
+    if (row):
+        locationTable = "<table class='nameList'>"
+        while row:
+            blurb = row[2][:30] + ("..." if len(row[2]) > 30 else "")
+            locationTable += "<tr><td><a href='/characters/"+str(row[0])+"'>" + row[1] + "</a></td><td>" + blurb + "</td></tr>"
+            row = cur.fetchone()
+        locationTable += "</table>"
+        return locationTable
+    return ""

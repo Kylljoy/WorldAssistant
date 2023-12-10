@@ -1,36 +1,29 @@
 <!DOCTYPE html>
-<style>
-table {
-  border: 1px solid;
-  border-collapse: collapse;
-
-  width:100%;
-}
-
-th, td {
-  padding:10px;
-  border-bottom: 1px solid;
-  border-left: 1px solid;
-}
-
-tr:nth-child(even){
-  background-color: #000000;
-  color:#ffffff;
-}
-
-
-</style>
+<link rel="stylesheet" href="/style.css">
 <html lang="">
   <head>
     <meta charset="utf-8">
     <title>WorldAssistant</title>
   </head>
   <body>
-    <form>
-    Location Name: <input type="search" name="name"></input>
-    <button type="submit">Search</button>
-
-    </form>
-    $TABLE$
+    Location Name: <input id ="searchbar1" type="search" oninput = "updateSuggestions(1)"></input><br>
+    <table id = "suggestions1"></table>
   </body>
+  <script>
+    let lastPass = "";
+    function updateSuggestions(searchInstance) {
+        lastPass = "";
+        deposition = document.getElementById("suggestions" + searchInstance);
+        deposition.innerHTML = "";
+        fetch("/info/location?" + new URLSearchParams({"name":document.getElementById("searchbar" + searchInstance).value}))
+            .then((response)=>response.json())
+            .then((json)=>{
+                if (json["status"] === "success") {
+                    for (let i = 0; i < json["rows"]; i++) {
+                        deposition.innerHTML += "<tr><td><a href='/locations/" + json[i]["id"] + "'>" + json[i]["name"] + "</a></td></tr>";
+                    }
+                } 
+            });
+    }
+  </script>
 </html>

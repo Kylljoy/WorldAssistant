@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <link rel="stylesheet" href="/style.css">
+    <meta charset="utf-8">
+    <title>$EVENT_NAME</title>
+  </head>
+  <body>
+    <header><div class="location-title"><a href='/locations/$LOCATION_ID'>$LOCATION_NAME</a> &rarr; <h1>$EVENT_NAME</h1></h1></div></header>
+    <hr>
+    <div class="info-body">
+      <div class='info-box'><h2>ABOUT</h2> <br>
+    $EVENT_BLURB</div>
+    <div class='info-box'><h2>PARTIPANTS</h2> <br>
+      $CHARACTER_LIST
+      </div>
+  </div>
+  <button class="modify-button" onclick="window.location.replace('/locations/$EVENT_ID/modify')">MODIFY</button>
+  <button class="delete-button" onclick="delete_confirmation()">DELETE</button>
+  </body>
+  <script>
+    function delete_confirmation() {
+      if (confirm("Are you sure? This will delete all sublocations and resident NPCs!")) {
+        window.location.replace("/events/$EVENT_ID/delete");
+      }
+    }
+  </script>
+
+</html>

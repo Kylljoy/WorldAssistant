@@ -4,17 +4,19 @@ import socket
 import random
 import re
 import webbrowser
+import traceback
 
 from baseEssentials import *
 from locationHandlers import *
 from characterHandlers import *
+from eventHandlers import *
 
 dbConnection = mysql.connector.connect( host="localhost",
                                         user="app",
                                         password="dbAccess",
                                         database="worldAssistant")
 
-fileMap = {"html" : "text/html", "css":"text/css", "jpeg":"image/jpeg", "gif" : "image/gif", "png": "image/png", "txt":"text/plain", "ico":"image/vnd.microsoft.icon "}
+fileMap = {"html" : "text/html", "js" : "a", "css":"text/css", "jpeg":"image/jpeg", "gif" : "image/gif", "png": "image/png", "txt":"text/plain", "ico":"image/vnd.microsoft.icon "}
 port = 8080
 #Builds an HTML Table Object From Cursor Result C
 
@@ -116,10 +118,10 @@ while True:
                 if (len(path) == 1):
                     serveMasterLocation(cSock, dbConnection)
                     #Master Location List
-                elif (path[1] == "new"):
+                elif (len(path) == 2 and path[1] == "new"):
                     serveNewMasterLocation(cSock, dbConnection, args)
-                elif (path[1].isdigit()):
-                    if (len(path) == 2):
+                elif (len(path) >= 2 and path[1].isdigit()):
+                    if (len(path) == 3):
                         if (path[2] == "new"):
                             serveNewSublocation(cSock, dbConnection, args, int(path[1]))
                         elif (path[2] == "delete"):
@@ -131,18 +133,20 @@ while True:
                         else:
                             send404(cSock)
                     
-                    else:
+                    elif (len(path) == 2):
                         serveLocationPage(cSock, dbConnection, int(path[1]))
+                    else:
+                        send404(cSock)
                 else:
                     send404(cSock)
-            elif (path[0] == "characters"):
+            elif (path[0] == "characters" and len(path) <= 3):
                 if (len(path) == 1):
                     send404(cSock)
                 elif (path[1].isdigit()):
-                    if (len(path) == 2):
+                    if (len(path) == 3):
                         if (path[2] == "modify"):
                             serveModifyCharacter(cSock, dbConnection, args, int(path[1]))
-                        if (path[2] == "delete"):
+                        elif (path[2] == "delete"):
                             serveDeleteCharacter(cSock, dbConnection, int(path[1]))
                         else:
                             send404(cSock)
@@ -150,6 +154,14 @@ while True:
                         serveCharacterPage(cSock, dbConnection, int(path[1]))
                 else:
                     send404(cSock)
+            elif (path[0] == "events" and len(path) <= 3):
+                if (len(path) == 1):
+                    send404(cSock)
+                elif(path[1].isdigit()):
+                    serveEventPage(cSock, dbConnection, int(path[1]))
+                else:
+                    send404(cSock)
+
             elif (path[0] == "info"):
                 if (len(path) == 1):
                     send404(cSock)
@@ -185,7 +197,7 @@ while True:
             None
         except Exception as e:
             print("Critical Exception: " + e.__repr__())
-            print(e.__traceback__.__repr__())
+            traceback.print_tb(e.__traceback__)
             cSock.close()
             server.close()
             print("Server Closed!")
