@@ -3,6 +3,8 @@ import mysql.connector
 import socket
 import re
 
+import json
+
 from baseEssentials import *
 
 
@@ -49,6 +51,26 @@ def buildLocationPath(dbConnection, locationId):
     locationPath += decodeString(row[1])
     cur.close()
     return locationPath
+
+def serveLocationData(cSock, dbConnection, args):
+    #Match the partial
+    json_out = {"status":"failure"}
+    if ("name" in args.keys()):
+        json_out["status"] = "success";
+        cur = dbConnection.cursor()
+        cur.execute("SELECT LocationID, Name FROM Locations WHERE Name LIKE '" + str(encodeString(args["name"])) + "%'")
+        rows = cur.fetchmany(30)
+        cur.close()
+        if rows is not None:
+            json_out["rows"] = len(rows)
+            for i in range(0, len(rows)):
+                json_out[str(i)] = {"id":rows[i][0], "name":rows[i][1]}
+
+    cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type:application/json\r\n\r\n",encoding="utf-8"))
+    cSock.send(bytes(json.dumps(json_out), encoding = "utf-8"))
+    cSock.send(bytes("\r\n\r\n", encoding = "utf-8"))
+    cSock.close()
+
 
 def serveDeleteLocation(cSock, dbConnection, locationId):
     #Ensure the given location exists

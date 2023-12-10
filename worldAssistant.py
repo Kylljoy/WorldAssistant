@@ -42,40 +42,6 @@ def stripFormatting(s):
 
 
 
-def addPopulation(cSock, args):
-    cSock.send(bytes("HTTP/1.1 200 Document follows \r\nServer: World Assistant\r\nContent-Type: text/html\r\n\r\n",encoding="utf-8"))
-    page = open("populationCreate.html",'r')
-    text = page.read()
-    optionsIndex = text.find("$OPTIONS$")
-    
-    page.close()
-    cSock.send(bytes(text[:optionsIndex], encoding = 'utf-8'))
-    cur = dbConnection.cursor()
-    cur.execute("SELECT LocationID, Name FROM Locations")
-    row = cur.fetchone()
-    while row:
-        cSock.send(bytes("<option value='"+str(row[0])+"'>"+row[1]+"</option>", encoding = 'utf-8'))
-        row = cur.fetchone()
-    cur.close()
-    cSock.send(bytes(text[optionsIndex + 9:], encoding = 'utf-8'))
-    if len(args.keys()) == 5:
-        name = repr(args["name"])
-        species = repr(args["species"])
-        stats = repr(args["stats"])
-        bio = repr(args["bio"])
-        locationId = int(args["location"])
-        cur = dbConnection.cursor()
-        query = "INSERT INTO Characters SELECT MAX(CharacterID) + 1, "+ ",".join([name, species, stats, bio]) + " FROM Characters"
-        print(query)
-        cur.execute(query)
-        if (locationId > 0):
-            cur.execute("INSERT INTO Population SELECT "+ str(locationId) +", MAX(CharacterID) FROM Characters")
-        cur.close()
-        print(query)
-        #cur.execute()
-    cSock.close();
-
-
 
 
 def indexPage(cSock, args):
@@ -153,7 +119,7 @@ while True:
                 elif (path[1] == "new"):
                     serveNewMasterLocation(cSock, dbConnection, args)
                 elif (path[1].isdigit()):
-                    if (len(path) > 2):
+                    if (len(path) == 2):
                         if (path[2] == "new"):
                             serveNewSublocation(cSock, dbConnection, args, int(path[1]))
                         elif (path[2] == "delete"):
@@ -171,9 +137,9 @@ while True:
                     send404(cSock)
             elif (path[0] == "characters"):
                 if (len(path) == 1):
-                    cSock.close()
+                    send404(cSock)
                 elif (path[1].isdigit()):
-                    if (len(path) > 2):
+                    if (len(path) == 2):
                         if (path[2] == "modify"):
                             serveModifyCharacter(cSock, dbConnection, args, int(path[1]))
                         if (path[2] == "delete"):
@@ -184,6 +150,13 @@ while True:
                         serveCharacterPage(cSock, dbConnection, int(path[1]))
                 else:
                     send404(cSock)
+            elif (path[0] == "info"):
+                if (len(path) == 1):
+                    send404(cSock)
+                else:
+                    if(path[1] == "location"):
+                        serveLocationData(cSock, dbConnection, args)
+                    
             elif (fileName == "/"):
                 cSock.close()
             elif (".." not in fileName and suffix != "py" and suffix != "db"):
