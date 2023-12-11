@@ -149,14 +149,10 @@ def serveNewCharacter(cSock, dbConnection, args, locationId):
     if ("name" in args.keys() and "bio" in args.keys() and "stats" in args.keys() and "species" in args.keys()):
         #Create a New Character linked to this location
         cur = dbConnection.cursor()
-        cur.execute("INSERT INTO Characters (Name, Species, Bio, Stats) VALUES ('" + encodeString(args["name"])[:50] + "', '" + encodeString(args["species"])[:30] + "', '" + encodeString(args["bio"])[:200] + "', '" + encodeString(args["stats"])[:150] + "')")
-        cur.execute("SELECT MAX(CharacterID) FROM Characters")
-        row = cur.fetchone()
-        newId = row[0]
-        cur.execute("INSERT INTO Population (LocationID, CharacterID) VALUES (" + str(locationId) + ", " + str(newId) + ")")
+        cur.execute("CALL newCharacter ('" + encodeString(args["name"])[:50] + "', '" + encodeString(args["species"])[:30] + "', '" + encodeString(args["stats"])[:150] + "', '" + encodeString(args["bio"])[:150] + "', " + str(locationId) + ")")
         cur.close()
         #Redirect
-        redirectPage(cSock, "/characters/" + str(newId))
+        redirectPage(cSock, "/locations/" + str(locationId))
     else:
         #Read The Template
         page = open("createCharacter.html")
@@ -176,7 +172,7 @@ def serveNewCharacter(cSock, dbConnection, args, locationId):
             pageSource = pageSource.replace("$CHARACTER_NAME", "Insert New Name")
             pageSource = pageSource.replace("$CHARACTER_BIO", "Insert New Bio")
             pageSource = pageSource.replace("$CHARACTER_STATS", "Insert New Stats")
-            pageSource = pageSource.replace("$EVENTS_LIST", "<i>None</i>")
+            pageSource = pageSource.replace("$EVENT_LIST", "<i>None</i>")
             pageSource = pageSource.replace("$JOB_LIST", "<i>None</i>")
         else:
             send404(cSock)

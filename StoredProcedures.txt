@@ -90,6 +90,9 @@ BEGIN
     WHERE ChildID = locId;
 
     DELETE FROM Events
+    WHERE LocationID IN (SELECT s.ChildID FROM allSublocations s);
+
+    DELETE FROM Events
     WHERE LocationID = locId;
 
     DELETE FROM Sublocations
@@ -119,6 +122,37 @@ BEGIN
 DELIMITER ;
 
 DELIMITER //
+CREATE PROCEDURE newCharacter (IN new_name VARCHAR(50), 
+                                IN new_species VARCHAR(30),
+                                IN new_stats VARCHAR(150),
+                                IN new_bio VARCHAR(200),
+                                IN new_locationID INT UNSIGNED)
+BEGIN
+
+
+    INSERT INTO Characters (Name, Species, Bio, Stats) VALUES (new_name, new_species, new_bio, new_stats);
+    SET @newCharacter = (SELECT MAX(CharacterID) FROM Characters);
+    INSERT INTO Population (CharacterID, LocationID) VALUES (@newCharacter, new_locationID);
+    END
+    //
+DELIMITER ;
+
+DELIMITER //
+CREATE PROCEDURE newSublocation (IN new_name VARCHAR(100), 
+                                IN new_blurb VARCHAR(200),
+                                IN parent_locationID INT UNSIGNED)
+BEGIN
+
+
+    INSERT INTO Locations (Name, Blurb) VALUES (new_name, new_blurb);
+    SET @newLocation = (SELECT MAX(LocationID) FROM Locations);
+    INSERT INTO Sublocations (ParentID, ChildID) VALUES (parent_locationID, @newLocation);
+    END
+    //
+DELIMITER ;
+
+
+DELIMITER //
 CREATE PROCEDURE purgeEvent (IN evId INT UNSIGNED)
 BEGIN
 
@@ -136,12 +170,12 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE generateTimeline
 BEGIN
-    DROP VIEW IF EXISTS timeline;
+    DROP VIEW IF EXISTS Timeline;
     CREATE VIEW Timeline AS 
-    SELECT e.Name AS EventName, e.Blurb, l.Name AS LocationName, e.Date, e.Month, e.Year, e.EventID, e.LocationID FROM Events e
+    SELECT e.EventID as EventID, l.Name , e.Blurb , e.Name as EventName, e.Date, e.Month, e.Year FROM Events e
     JOIN Locations l
     ON l.LocationID = e.LocationID
-    ORDER BY e.Date, e.Month, e.Year;
+    ORDER BY e.Year, e.Month, e.Date;
 
     DROP VIEW IF EXISTS HistoricalFigures;
     CREATE VIEW HistoricalFigures AS

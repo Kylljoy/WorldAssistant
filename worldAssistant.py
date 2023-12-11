@@ -237,10 +237,7 @@ while True:
         except Exception as e:
             print("Critical Exception: " + e.__repr__())
             traceback.print_tb(e.__traceback__)
-            cSock.close()
-            server.close()
-            print("Server Closed!")
-            break
+            
         
             
         

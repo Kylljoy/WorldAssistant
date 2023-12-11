@@ -194,12 +194,7 @@ def serveNewSublocation(cSock, dbConnection, args, parentLocation):
     if ("name" in args.keys() and "blurb" in args.keys()):
         #Create a New Location
         cur = dbConnection.cursor()
-        cur.execute("INSERT INTO Locations (Name, Blurb) VALUES ('" + encodeString(args["name"])[:100] + "' , '" + encodeString(args["blurb"])[:200] +"')")
-        cur.close()
-
-        #Add the Sublocation
-        cur = dbConnection.cursor()
-        cur.execute("INSERT INTO Sublocations SELECT " + str(parentLocation) +", MAX(LocationID) FROM Locations")
+        cur.execute("CALL newSublocation('" + encodeString(args["name"])[:100] + "' , '" + encodeString(args["blurb"])[:200] +"', " + str(parentLocation) + ")")
         cur.close()
 
         #Redirect

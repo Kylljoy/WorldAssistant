@@ -30,8 +30,8 @@ def send404(cSock):
     cSock.close()
 
 def encodeString(s):
-    out = s.replace("\\","\\\\")
-    out = out.replace("\"", "&quot;")
+    #out = s.replace("\\","\\\\")
+    out = s.replace("\"", "&quot;")
     out = out.replace("\'", "&apos;")
     return out
 
