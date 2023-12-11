@@ -1,18 +1,1 @@
-Locations:
-    Delete Locations
-    Location Subsearch JS
-
-People:
-    Delete People
-    People Subsearch JS
-
-Events:
-    Add Events
-    Search Events
-    Delete Events
-    Link Events
-
-General:
-    GUI Improvements
-
 
